@@ -8,6 +8,7 @@ publish = "build"
 # 3. Copy index.html into the build directory
 # 4. Create a template for api-config.js
 # 5. Use envsubst to replace the variable in the template and output to api-config.js
+# Removed the problematic backslashes for TOML parsing
 command = """
 rm -rf build && mkdir -p build && cp index.html build/index.html && \
 echo 'window.NETLIFY_API_KEY = "$GOOGLE_API_KEY";' > build/api-config-template.js && \
