@@ -7,10 +7,8 @@ publish = "build"
 # 2. Create a fresh 'build' directory (mkdir -p build)
 # 3. Copy index.html into the build directory
 # 4. Generate api-config.js with the GOOGLE_API_KEY
-# Using printf for robust API key injection with correct quoting
-command = """
-rm -rf build && mkdir -p build && cp index.html build/index.html && printf 'window.NETLIFY_API_KEY = "%s";\n' "$GOOGLE_API_KEY" > build/api-config.js
-"""
+# Simplest echo command for direct variable expansion
+command = "rm -rf build && mkdir -p build && cp index.html build/index.html && echo 'window.NETLIFY_API_KEY = \"'$GOOGLE_API_KEY'\";' > build/api-config.js"
 
 # This section ensures the GOOGLE_API_KEY environment variable is available to the build command
 [context.production.environment]
