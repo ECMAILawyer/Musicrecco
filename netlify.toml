@@ -3,11 +3,12 @@
 publish = "build"
 
 # This command will:
-# 1. Create a 'build' directory if it doesn't exist (mkdir -p build)
-# 2. Run sed to replace the placeholder in index.html
-# 3. Redirect the output of sed to a NEW file: build/index.html (>)
+# 1. Remove the 'build' directory if it exists (rm -rf build)
+# 2. Create a fresh 'build' directory (mkdir -p build)
+# 3. Run sed to replace the placeholder in index.html
+# 4. Redirect the output of sed to a NEW file: build/index.html (>)
 # Using '#' as a delimiter for sed for robustness.
-command = "mkdir -p build && sed 's#YOUR_API_KEY_PLACEHOLDER_IN_HTML#'\"$GOOGLE_API_KEY\"'#g' index.html > build/index.html"
+command = "rm -rf build && mkdir -p build && sed 's#YOUR_API_KEY_PLACEHOLDER_IN_HTML#'\"$GOOGLE_API_KEY\"'#g' index.html > build/index.html"
 
 # This section ensures the GOOGLE_API_KEY environment variable is available to the build command
 [context.production.environment]
