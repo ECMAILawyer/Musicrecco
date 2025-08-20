@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music for You</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom checkbox styling for better visibility and consistency */
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            display: inline-block;
+            width: 1.25rem; /* h-5 */
+            height: 1.25rem; /* w-5 */
+            background-color: #4a5568; /* gray-700 */
+            border: 2px solid #6b7280; /* gray-600 */
+            border-radius: 0.25rem; /* rounded-md */
+            cursor: pointer;
+            vertical-align: middle;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        input[type="checkbox"]:checked {
+            background-color: #8B5CF6; /* purple-600 */
+            border-color: #8B5CF6; /* purple-600 */
+        }
+        input[type="checkbox"]:checked::before {
+            content: '✔'; /* Checkmark symbol */
+            display: block;
+            color: white;
+            font-size: 0.8rem;
+            text-align: center;
+            line-height: 1rem;
+        }
+        input[type="checkbox"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5); /* focus:ring-purple-500 */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-800 via-pink-600 to-yellow-500 text-white p-4 sm:p-8 flex flex-col items-center">
+
+    <div class="bg-gray-900 bg-opacity-80 rounded-2xl shadow-xl p-6 sm:p-10 w-full max-w-4xl space-y-8 border-4 border-purple-500">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 mb-6">
+            🎶 Music for You 🎶
+        </h1>
+
+        <!-- Preferences Form -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Age -->
+            <div>
+                <label for="age" class="block text-lg font-semibold mb-2">Age:</label>
+                <input
+                    type="number"
+                    id="age"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                    placeholder="e.g., 25"
+                />
+            </div>
+
+            <!-- Gender -->
+            <div>
+                <label for="gender" class="block text-lg font-semibold mb-2">Gender:</label>
+                <select
+                    id="gender"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+            </div>
+
+            <!-- Genre -->
+            <div class="md:col-span-2">
+                <label class="block text-lg font-semibold mb-2">Genre of preference:</label>
+                <div id="genre-options" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <!-- Checkboxes will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Mood -->
+            <div>
+                <label for="mood" class="block text-lg font-semibold mb-2">Mood:</label>
+                <select
+                    id="mood"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                >
+                    <option value="">Select Mood</option>
+                    <!-- Options will be inserted here by JavaScript -->
+                </select>
+            </div>
+
+            <!-- Song Characteristics - Changed label -->
+            <div>
+                <label class="block text-lg font-semibold mb-2">I want songs which are:</label>
+                <div id="characteristics-options" class="grid grid-cols-2 gap-3">
+                    <!-- Checkboxes will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- New: I want to listen to: -->
+            <div>
+                <label for="listenTo" class="block text-lg font-semibold mb-2">I want to listen to:</label>
+                <select
+                    id="listenTo"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                >
+                    <option value="">Select an option</option>
+                    <!-- Options will be inserted here by JavaScript -->
+                </select>
+            </div>
+
+            <!-- New: My favourite artist(s) now are (optional) -->
+            <div>
+                <label for="favoriteArtists" class="block text-lg font-semibold mb-2">My favourite artist(s) now are (optional):</label>
+                <input
+                    type="text"
+                    id="favoriteArtists"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                    placeholder="e.g., Taylor Swift, Ed Sheeran"
+                />
+            </div>
+
+            <!-- Music Platform -->
+            <div>
+                <label for="musicPlatform" class="block text-lg font-semibold mb-2">I would like to use:</label>
+                <select
+                    id="musicPlatform"
+                    class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                >
+                    <option value="">Select Platform</option>
+                    <!-- Options will be inserted here by JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Suggest Songs Button -->
+        <button
+            id="suggest-button"
+            class="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-xl"
+        >
+            Suggest Songs
+        </button>
+
+        <!-- Error Display -->
+        <div id="error-message" class="bg-red-600 bg-opacity-90 p-4 rounded-xl text-center text-lg font-semibold shadow-md hidden">
+        </div>
+
+        <!-- Suggested Songs Display -->
+        <div id="suggested-songs-display" class="bg-gray-800 bg-opacity-70 p-6 rounded-2xl shadow-inner border-2 border-purple-600 hidden">
+            <h2 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400 mb-5">
+                🎵 Your Suggested Songs 🎵
+            </h2>
+            <ul id="suggested-songs-list" class="space-y-4">
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const ageInput = document.getElementById('age');
+        const genderSelect = document.getElementById('gender');
+        const genreOptionsDiv = document.getElementById('genre-options');
+        const moodSelect = document.getElementById('mood');
+        const characteristicsOptionsDiv = document.getElementById('characteristics-options');
+        const listenToSelect = document.getElementById('listenTo');
+        const favoriteArtistsInput = document.getElementById('favoriteArtists'); // New DOM element
+        const musicPlatformSelect = document.getElementById('musicPlatform');
+        const suggestButton = document.getElementById('suggest-button');
+        const errorMessageDiv = document.getElementById('error-message');
+        const suggestedSongsDisplay = document.getElementById('suggested-songs-display');
+        const suggestedSongsList = document.getElementById('suggested-songs-list');
+
+        // Options for dropdowns and checkboxes
+        const genres = ['Rock', 'Punk', 'Metal', 'Blues', 'Jazz', 'Pop', 'Folk', 'Pop Funk', 'EDM', 'Techno', 'Country', 'Rap', 'R&B', 'Any'];
+        const moods = ['Happy', 'Down', 'Busy', 'Bored', 'Annoyed', 'Sleepy', 'Any'];
+        const characteristics = ['Groovy', 'Fun', 'Meaningful lyrics', 'Great guitar solos', 'Solid drums', 'Anything'];
+        const listenToOptions = ['Popular songs', 'Independent artists', 'Anything'];
+        const platforms = ['Spotify', 'Apple Music', 'YouTube'];
+
+        // Populate dynamic form options
+        function populateOptions() {
+            // Populate Moods
+            moods.forEach(mood => {
+                const option = document.createElement('option');
+                option.value = mood;
+                option.textContent = mood;
+                moodSelect.appendChild(option);
+            });
+
+            // Populate "I want to listen to:" options
+            listenToOptions.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                listenToSelect.appendChild(option);
+            });
+
+            // Populate Music Platforms
+            platforms.forEach(platform => {
+                const option = document.createElement('option');
+                option.value = platform;
+                option.textContent = platform;
+                musicPlatformSelect.appendChild(option);
+            });
+
+            // Populate Genres
+            genreOptionsDiv.innerHTML = ''; // Clear existing options before populating
+            genres.forEach(g => {
+                const label = document.createElement('label');
+                label.className = 'inline-flex items-center text-lg cursor-pointer';
+                label.innerHTML = `
+                    <input type="checkbox" value="${g}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 genre-checkbox" />
+                    <span class="ml-2 text-white">${g}</span>
+                `;
+                genreOptionsDiv.appendChild(label);
+            });
+
+            // Populate Characteristics
+            characteristics.forEach(c => {
+                const label = document.createElement('label');
+                label.className = 'inline-flex items-center text-lg cursor-pointer';
+                label.innerHTML = `
+                    <input type="checkbox" value="${c}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 characteristic-checkbox" />
+                    <span class="ml-2 text-white">${c}</span>
+                `;
+                characteristicsOptionsDiv.appendChild(label);
+            });
+        }
+
+        // Get selected genres
+        function getSelectedGenres() {
+            return Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // Get selected characteristics
+        function getSelectedCharacteristics() {
+            return Array.from(document.querySelectorAll('.characteristic-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // Function to construct the song search link based on platform
+        function getSongLink(songTitle, artist, platform) {
+            const encodedQuery = encodeURIComponent(`${songTitle} ${artist}`);
+            switch (platform) {
+                case 'Spotify':
+                    return `https://open.spotify.com/search/${encodedQuery}`;
+                case 'Apple Music':
+                    return `https://music.apple.com/search?term=${encodedQuery}`;
+                case 'YouTube':
+                    return `https://www.youtube.com/results?search_query=${encodedQuery}`;
+                default:
+                    return '#'; // Fallback
+            }
+        }
+
+        // Function to display error message
+        function displayError(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.classList.remove('hidden');
+            suggestedSongsDisplay.classList.add('hidden'); // Hide song list on error
+            console.error(message); // Log error to console
+        }
+
+        // Function to hide error message
+        function hideError() {
+            errorMessageDiv.classList.add('hidden');
+        }
+
+        // Function to set loading state
+        function setLoading(isLoading) {
+            suggestButton.disabled = isLoading;
+            suggestButton.textContent = isLoading ? 'Suggesting...' : 'Suggest Songs';
+        }
+
+        // Exponential backoff retry mechanism for API calls
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response;
+                    } else {
+                        // Log non-ok responses but don't treat as critical error for retry
+                        console.warn(`API call failed (attempt ${i + 1}): ${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error(`Network error (attempt ${i + 1}):`, error);
+                }
+                if (i < retries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // Exponential delay
+                }
+            }
+            throw new Error(`Failed to fetch after ${retries} attempts.`);
+        }
+
+
+        // Function to generate song suggestions using the LLM (Gemini API)
+        async function generateSuggestions() {
+            setLoading(true);
+            hideError();
+            suggestedSongsList.innerHTML = '';
+            suggestedSongsDisplay.classList.add('hidden');
+
+            const age = ageInput.value;
+            const gender = genderSelect.value;
+            const selectedGenre = getSelectedGenres();
+            const mood = moodSelect.value;
+            const selectedCharacteristics = getSelectedCharacteristics();
+            const listenTo = listenToSelect.value;
+            const favoriteArtists = favoriteArtistsInput.value;
+            const musicPlatform = musicPlatformSelect.value;
+
+            const userPrompt = `Suggest 10 songs (title and artist) that fit the following preferences. Provide the output as a JSON array of objects, where each object has 'title' and 'artist' keys.
+            Age: ${age || 'Not specified'}
+            Gender: ${gender || 'Not specified'}
+            Genre of preference: ${selectedGenre.length > 0 ? selectedGenre.join(', ') : 'Any'}
+            Mood: ${mood || 'Any'}
+            I want songs which are: ${selectedCharacteristics.length > 0 ? selectedCharacteristics.join(', ') : 'Anything'}
+            I want to listen to: ${listenTo || 'Anything'}
+            My favourite artist(s) now are: ${favoriteArtists || 'Not specified'}
+            `;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: userPrompt }] });
+
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "title": { "type": "STRING" },
+                                    "artist": { "type": "STRING" }
+                                },
+                                "propertyOrdering": ["title", "artist"]
+                            }
+                        }
+                    }
+                };
+                // THIS IS A PLACEHOLDER. Netlify will replace this with your actual API key.
+                const apiKey = "YOUR_API_KEY_PLACEHOLDER_IN_HTML"; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const response = await fetchWithRetry(apiUrl, { // Using fetchWithRetry
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                console.log("Raw API result:", result); // Log the full API response
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    console.log("JSON text from API:", jsonText); // Log the JSON text
+
+                    try {
+                        const parsedSongs = JSON.parse(jsonText);
+                        if (Array.isArray(parsedSongs) && parsedSongs.every(s => s.title && s.artist)) {
+                            const songsToDisplay = parsedSongs.slice(0, 10); // Ensure only 10 songs
+                            if (songsToDisplay.length > 0) {
+                                songsToDisplay.forEach((song, index) => {
+                                    const listItem = document.createElement('li');
+                                    listItem.className = 'flex items-center bg-gray-700 bg-opacity-60 rounded-xl p-4 shadow-md transition-all duration-200 hover:bg-gray-600';
+                                    listItem.innerHTML = `
+                                        <span class="text-xl font-bold text-purple-300 mr-3">${index + 1}.</span>
+                                        <div class="flex-grow">
+                                            <p class="text-lg sm:text-xl font-semibold text-white">${song.title}</p>
+                                            <p class="text-md sm:text-lg text-gray-300">${song.artist}</p>
+                                        </div>
+                                        ${musicPlatform ? `
+                                        <a
+                                            href="${getSongLink(song.title, song.artist, musicPlatform)}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="ml-4 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-full text-sm sm:text-md font-bold shadow-md transform transition-transform duration-200 hover:scale-105"
+                                        >
+                                            Listen on ${musicPlatform}
+                                        </a>
+                                        ` : ''}
+                                    `;
+                                    suggestedSongsList.appendChild(listItem);
+                                });
+                                suggestedSongsDisplay.classList.remove('hidden');
+                            } else {
+                                displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
+                            }
+                        } else {
+                            displayError('Failed to parse song suggestions. The AI response was not in the expected JSON array format (e.g., missing title or artist).');
+                            console.error('Unexpected JSON structure:', parsedSongs);
+                        }
+                    } catch (jsonError) {
+                        displayError('Failed to parse song suggestions. The AI response was not valid JSON. Check console for raw response.');
+                        console.error('JSON parse error:', jsonError);
+                        console.error('Raw AI response causing error:', jsonText);
+                    }
+                } else {
+                    displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
+                    console.error('AI response candidates/content missing:', result);
+                }
+            } catch (err) {
+                displayError('A network or API error occurred. Please check your internet connection and try again.');
+                console.error('Overall fetch or API error:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Add event listener to the button
+        suggestButton.addEventListener('click', generateSuggestions);
+
+        // Initialize options on load
+        document.addEventListener('DOMContentLoaded', populateOptions);
+
+    </script>
+</body>
+</html>

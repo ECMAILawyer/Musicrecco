@@ -1,0 +1,14 @@
+[build]
+# Netlify will now publish from the 'build' subdirectory
+publish = "build"
+
+# This command will:
+# 1. Create a 'build' directory if it doesn't exist (mkdir -p build)
+# 2. Run sed to replace the placeholder in index.html
+# 3. Redirect the output of sed to a NEW file: build/index.html (>)
+# Using '#' as a delimiter for sed for robustness.
+command = "mkdir -p build && sed 's#YOUR_API_KEY_PLACEHOLDER_IN_HTML#'\"$GOOGLE_API_KEY\"'#g' index.html > build/index.html"
+
+# This section ensures the GOOGLE_API_KEY environment variable is available to the build command
+[context.production.environment]
+GOOGLE_API_KEY = "$GOOGLE_API_KEY"
