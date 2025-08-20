@@ -167,289 +167,268 @@
     </div>
 
     <script>
-        // DOM Elements
-        const ageInput = document.getElementById('age');
-        const genderSelect = document.getElementById('gender');
-        const genreOptionsDiv = document.getElementById('genre-options');
-        const moodSelect = document.getElementById('mood');
-        const characteristicsOptionsDiv = document.getElementById('characteristics-options');
-        const listenToSelect = document.getElementById('listenTo');
-        const favoriteArtistsInput = document.getElementById('favoriteArtists'); // New DOM element
-        const musicPlatformSelect = document.getElementById('musicPlatform');
-        const suggestButton = document.getElementById('suggest-button');
-        const errorMessageDiv = document.getElementById('error-message');
-        const suggestedSongsDisplay = document.getElementById('suggested-songs-display');
-        const suggestedSongsList = document.getElementById('suggested-songs-list');
+        // Wrap the entire script in an IIFE to create a new scope and prevent global variable re-declaration
+        (function() {
+            // DOM Elements
+            const ageInput = document.getElementById('age');
+            const genderSelect = document.getElementById('gender');
+            const genreOptionsDiv = document.getElementById('genre-options');
+            const moodSelect = document.getElementById('mood');
+            const characteristicsOptionsDiv = document.getElementById('characteristics-options');
+            const listenToSelect = document.getElementById('listenTo');
+            const favoriteArtistsInput = document.getElementById('favoriteArtists');
+            const musicPlatformSelect = document.getElementById('musicPlatform');
+            const suggestButton = document.getElementById('suggest-button');
+            const errorMessageDiv = document.getElementById('error-message');
+            const suggestedSongsDisplay = document.getElementById('suggested-songs-display');
+            const suggestedSongsList = document.getElementById('suggested-songs-list');
 
-        // Options for dropdowns and checkboxes
-        const genres = ['Rock', 'Punk', 'Metal', 'Blues', 'Jazz', 'Pop', 'Folk', 'Pop Funk', 'EDM', 'Techno', 'Country', 'Rap', 'R&B', 'Any'];
-        const moods = ['Happy', 'Down', 'Busy', 'Bored', 'Annoyed', 'Sleepy', 'Any'];
-        const characteristics = ['Groovy', 'Fun', 'Meaningful lyrics', 'Great guitar solos', 'Solid drums', 'Anything'];
-        const listenToOptions = ['Popular songs', 'Independent artists', 'Anything'];
-        const platforms = ['Spotify', 'Apple Music', 'YouTube'];
+            // Options for dropdowns and checkboxes
+            const genres = ['Rock', 'Punk', 'Metal', 'Blues', 'Jazz', 'Pop', 'Folk', 'Pop Funk', 'EDM', 'Techno', 'Country', 'Rap', 'R&B', 'Any'];
+            const moods = ['Happy', 'Down', 'Busy', 'Bored', 'Annoyed', 'Sleepy', 'Any'];
+            const characteristics = ['Groovy', 'Fun', 'Meaningful lyrics', 'Great guitar solos', 'Solid drums', 'Anything'];
+            const listenToOptions = ['Popular songs', 'Independent artists', 'Anything'];
+            const platforms = ['Spotify', 'Apple Music', 'YouTube'];
 
-        // Populate dynamic form options
-        function populateOptions() {
-            // Populate Moods
-            moods.forEach(mood => {
-                const option = document.createElement('option');
-                option.value = mood;
-                option.textContent = mood;
-                moodSelect.appendChild(option);
-            });
-
-            // Populate "I want to listen to:" options
-            listenToOptions.forEach(optionText => {
-                const option = document.createElement('option');
-                option.value = optionText;
-                option.textContent = optionText;
-                listenToSelect.appendChild(option);
-            });
-
-            // Populate Music Platforms
-            platforms.forEach(platform => {
-                const option = document.createElement('option');
-                option.value = platform;
-                option.textContent = platform;
-                musicPlatformSelect.appendChild(option);
-            });
-
-            // Populate Genres
-            genreOptionsDiv.innerHTML = ''; // Clear existing options before populating
-            genres.forEach(g => {
-                const label = document.createElement('label');
-                label.className = 'inline-flex items-center text-lg cursor-pointer';
-                label.innerHTML = `
-                    <input type="checkbox" value="${g}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 genre-checkbox" />
-                    <span class="ml-2 text-white">${g}</span>
-                `;
-                genreOptionsDiv.appendChild(label);
-            });
-
-            // Populate Characteristics
-            characteristics.forEach(c => {
-                const label = document.createElement('label');
-                label.className = 'inline-flex items-center text-lg cursor-pointer';
-                label.innerHTML = `
-                    <input type="checkbox" value="${c}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 characteristic-checkbox" />
-                    <span class="ml-2 text-white">${c}</span>
-                `;
-                characteristicsOptionsDiv.appendChild(label);
-            });
-        }
-
-        // Get selected genres
-        function getSelectedGenres() {
-            return Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
-        }
-
-        // Get selected characteristics
-        function getSelectedCharacteristics() {
-            return Array.from(document.querySelectorAll('.characteristic-checkbox:checked')).map(cb => cb.value);
-        }
-
-        // Function to construct the song search link based on platform
-        function getSongLink(songTitle, artist, platform) {
-            const encodedQuery = encodeURIComponent(`${songTitle} ${artist}`);
-            switch (platform) {
-                case 'Spotify':
-                    return `https://open.spotify.com/search/${encodedQuery}`;
-                case 'Apple Music':
-                    return `https://music.apple.com/search?term=${encodedQuery}`;
-                case 'YouTube':
-                    return `https://www.youtube.com/results?search_query=${encodedQuery}`;
-                default:
-                    return '#'; // Fallback
-            }
-        }
-
-        // Function to display error message
-        function displayError(message) {
-            errorMessageDiv.textContent = message;
-            errorMessageDiv.classList.remove('hidden');
-            suggestedSongsDisplay.classList.add('hidden'); // Hide song list on error
-            console.error(message); // Log error to console
-        }
-
-        // Function to hide error message
-        function hideError() {
-            errorMessageDiv.classList.add('hidden');
-        }
-
-        // Function to set loading state
-        function setLoading(isLoading) {
-            suggestButton.disabled = isLoading;
-            suggestButton.textContent = isLoading ? 'Suggesting...' : 'Suggest Songs';
-        }
-
-        // Exponential backoff retry mechanism for API calls
-        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) {
-                        return response;
-                    } else {
-                        // Log non-ok responses but don't treat as critical error for retry
-                        console.warn(`API call failed (attempt ${i + 1}): ${response.status} ${response.statusText}`);
-                    }
-                } catch (error) {
-                    console.error(`Network error (attempt ${i + 1}):`, error);
-                }
-                if (i < retries - 1) {
-                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // Exponential delay
-                }
-            }
-            throw new Error(`Failed to fetch after ${retries} attempts.`);
-        }
-
-
-        // Function to generate song suggestions using the LLM (Gemini API)
-        async function generateSuggestions() {
-            setLoading(true);
-            hideError();
-            suggestedSongsList.innerHTML = '';
-            suggestedSongsDisplay.classList.add('hidden');
-
-            const age = ageInput.value;
-            const gender = genderSelect.value;
-            const selectedGenre = getSelectedGenres();
-            const mood = moodSelect.value;
-            const selectedCharacteristics = getSelectedCharacteristics();
-            const listenTo = listenToSelect.value;
-            const favoriteArtists = favoriteArtistsInput.value;
-            const musicPlatform = musicPlatformSelect.value;
-
-            const userPrompt = `Suggest 10 songs (title and artist) that fit the following preferences. Provide the output as a JSON array of objects, where each object has 'title' and 'artist' keys.
-            Age: ${age || 'Not specified'}
-            Gender: ${gender || 'Not specified'}
-            Genre of preference: ${selectedGenre.length > 0 ? selectedGenre.join(', ') : 'Any'}
-            Mood: ${mood || 'Any'}
-            I want songs which are: ${selectedCharacteristics.length > 0 ? selectedCharacteristics.join(', ') : 'Anything'}
-            I want to listen to: ${listenTo || 'Anything'}
-            My favourite artist(s) now are: ${favoriteArtists || 'Not specified'}
-            `;
-
-            try {
-                let chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: userPrompt }] });
-
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    "title": { "type": "STRING" },
-                                    "artist": { "type": "STRING" }
-                                },
-                                "propertyOrdering": ["title", "artist"]
-                            }
-                        }
-                    }
-                };
-                // THIS IS A PLACEHOLDER. Netlify will replace this with your actual API key.
-                const apiKey = "NETLIFY_API_KEY_PLACEHOLDER"; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                const response = await fetchWithRetry(apiUrl, { // Using fetchWithRetry
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+            // Populate dynamic form options
+            function populateOptions() {
+                // Populate Moods
+                moods.forEach(mood => {
+                    const option = document.createElement('option');
+                    option.value = mood;
+                    option.textContent = mood;
+                    moodSelect.appendChild(option);
                 });
 
-                const result = await response.json();
-                console.log("Raw API result:", result); // Log the full API response
+                // Populate "I want to listen to:" options
+                listenToOptions.forEach(optionText => {
+                    const option = document.createElement('option');
+                    option.value = optionText;
+                    option.textContent = optionText;
+                    listenToSelect.appendChild(option);
+                });
 
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const jsonText = result.candidates[0].content.parts[0].text;
-                    console.log("JSON text from API:", jsonText); // Log the JSON text
+                // Populate Music Platforms
+                platforms.forEach(platform => {
+                    const option = document.createElement('option');
+                    option.value = platform;
+                    option.textContent = platform;
+                    musicPlatformSelect.appendChild(option);
+                });
 
-                    try {
-                        const parsedSongs = JSON.parse(jsonText);
-                        if (Array.isArray(parsedSongs) && parsedSongs.every(s => s.title && s.artist)) {
-                            const songsToDisplay = parsedSongs.slice(0, 10); // Ensure only 10 songs
-                            if (songsToDisplay.length > 0) {
-                                songsToDisplay.forEach((song, index) => {
-                                    const listItem = document.createElement('li');
-                                    listItem.className = 'flex items-center bg-gray-700 bg-opacity-60 rounded-xl p-4 shadow-md transition-all duration-200 hover:bg-gray-600';
-                                    listItem.innerHTML = `
-                                        <span class="text-xl font-bold text-purple-300 mr-3">${index + 1}.</span>
-                                        <div class="flex-grow">
-                                            <p class="text-lg sm:text-xl font-semibold text-white">${song.title}</p>
-                                            <p class="text-md sm:text-lg text-gray-300">${song.artist}</p>
-                                        </div>
-                                        ${musicPlatform ? `
-                                        <a
-                                            href="${getSongLink(song.title, song.artist, musicPlatform)}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="ml-4 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-full text-sm sm:text-md font-bold shadow-md transform transition-transform duration-200 hover:scale-105"
-                                        >
-                                            Listen on ${musicPlatform}
-                                        </a>
-                                        ` : ''}
-                                    `;
-                                    suggestedSongsList.appendChild(listItem);
-                                });
-                                suggestedSongsDisplay.classList.remove('hidden');
-                            } else {
-                                displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
-                            }
-                        } else {
-                            displayError('Failed to parse song suggestions. The AI response was not in the expected JSON array format (e.g., missing title or artist).');
-                            console.error('Unexpected JSON structure:', parsedSongs);
-                        }
-                    } catch (jsonError) {
-                        displayError('Failed to parse song suggestions. The AI response was not valid JSON. Check console for raw response.');
-                        console.error('JSON parse error:', jsonError);
-                        console.error('Raw AI response causing error:', jsonText);
-                    }
-                } else {
-                    displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
-                    console.error('AI response candidates/content missing:', result);
-                }
-            } catch (err) {
-                displayError('A network or API error occurred. Please check your internet connection and try again.');
-                console.error('Overall fetch or API error:', err);
-            } finally {
-                setLoading(false);
+                // Populate Genres
+                genreOptionsDiv.innerHTML = ''; // Clear existing options before populating
+                genres.forEach(g => {
+                    const label = document.createElement('label');
+                    label.className = 'inline-flex items-center text-lg cursor-pointer';
+                    label.innerHTML = `
+                        <input type="checkbox" value="${g}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 genre-checkbox" />
+                        <span class="ml-2 text-white">${g}</span>
+                    `;
+                    genreOptionsDiv.appendChild(label);
+                });
+
+                // Populate Characteristics
+                characteristics.forEach(c => {
+                    const label = document.createElement('label');
+                    label.className = 'inline-flex items-center text-lg cursor-pointer';
+                    label.innerHTML = `
+                        <input type="checkbox" value="${c}" class="form-checkbox h-5 w-5 text-purple-600 rounded-md focus:ring-purple-500 characteristic-checkbox" />
+                        <span class="ml-2 text-white">${c}</span>
+                    `;
+                    characteristicsOptionsDiv.appendChild(label);
+                });
             }
-        }
 
-        // Add event listener to the button
-        suggestButton.addEventListener('click', generateSuggestions);
+            // Get selected genres
+            function getSelectedGenres() {
+                return Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            }
 
-        // Initialize options on load
-        document.addEventListener('DOMContentLoaded', populateOptions);
+            // Get selected characteristics
+            function getSelectedCharacteristics() {
+                return Array.from(document.querySelectorAll('.characteristic-checkbox:checked')).map(cb => cb.value);
+            }
 
+            // Function to construct the song search link based on platform
+            function getSongLink(songTitle, artist, platform) {
+                const encodedQuery = encodeURIComponent(`${songTitle} ${artist}`);
+                switch (platform) {
+                    case 'Spotify':
+                        return `https://open.spotify.com/search/${encodedQuery}`;
+                    case 'Apple Music':
+                        return `https://music.apple.com/search?term=${encodedQuery}`;
+                    case 'YouTube':
+                        return `https://www.youtube.com/results?search_query=${encodedQuery}`;
+                    default:
+                        return '#'; // Fallback
+                }
+            }
+
+            // Function to display error message
+            function displayError(message) {
+                errorMessageDiv.textContent = message;
+                errorMessageDiv.classList.remove('hidden');
+                suggestedSongsDisplay.classList.add('hidden'); // Hide song list on error
+                console.error(message); // Log error to console
+            }
+
+            // Function to hide error message
+            function hideError() {
+                errorMessageDiv.classList.add('hidden');
+            }
+
+            // Function to set loading state
+            function setLoading(isLoading) {
+                suggestButton.disabled = isLoading;
+                suggestButton.textContent = isLoading ? 'Suggesting...' : 'Suggest Songs';
+            }
+
+            // Exponential backoff retry mechanism for API calls
+            async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (response.ok) {
+                            return response;
+                        } else {
+                            // Log non-ok responses but don't treat as critical error for retry
+                            console.warn(`API call failed (attempt ${i + 1}): ${response.status} ${response.statusText}`);
+                        }
+                    } catch (error) {
+                        console.error(`Network error (attempt ${i + 1}):`, error);
+                    }
+                    if (i < retries - 1) {
+                        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // Exponential delay
+                    }
+                }
+                throw new Error(`Failed to fetch after ${retries} attempts.`);
+            }
+
+
+            // Function to generate song suggestions using the LLM (Gemini API)
+            async function generateSuggestions() {
+                setLoading(true);
+                hideError();
+                suggestedSongsList.innerHTML = '';
+                suggestedSongsDisplay.classList.add('hidden');
+
+                const age = ageInput.value;
+                const gender = genderSelect.value;
+                const selectedGenre = getSelectedGenres();
+                const mood = moodSelect.value;
+                const selectedCharacteristics = getSelectedCharacteristics();
+                const listenTo = listenToSelect.value;
+                const favoriteArtists = favoriteArtistsInput.value;
+                const musicPlatform = musicPlatformSelect.value;
+
+                const userPrompt = `Suggest 10 songs (title and artist) that fit the following preferences. Provide the output as a JSON array of objects, where each object has 'title' and 'artist' keys.
+                Age: ${age || 'Not specified'}
+                Gender: ${gender || 'Not specified'}
+                Genre of preference: ${selectedGenre.length > 0 ? selectedGenre.join(', ') : 'Any'}
+                Mood: ${mood || 'Any'}
+                I want songs which are: ${selectedCharacteristics.length > 0 ? selectedCharacteristics.join(', ') : 'Anything'}
+                I want to listen to: ${listenTo || 'Anything'}
+                My favourite artist(s) now are: ${favoriteArtists || 'Not specified'}
+                `;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: userPrompt }] });
+
+                    const payload = {
+                        contents: chatHistory,
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        "title": { "type": "STRING" },
+                                        "artist": { "type": "STRING" }
+                                    },
+                                    "propertyOrdering": ["title", "artist"]
+                                }
+                            }
+                        }
+                    };
+                    // THIS IS A PLACEHOLDER. Netlify will replace this with your actual API key.
+                    const apiKey = "NETLIFY_API_KEY_PLACEHOLDER";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const response = await fetchWithRetry(apiUrl, { // Using fetchWithRetry
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    console.log("Raw API result:", result); // Log the full API response
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const jsonText = result.candidates[0].content.parts[0].text;
+                        console.log("JSON text from API:", jsonText); // Log the JSON text
+
+                        try {
+                            const parsedSongs = JSON.parse(jsonText);
+                            if (Array.isArray(parsedSongs) && parsedSongs.every(s => s.title && s.artist)) {
+                                const songsToDisplay = parsedSongs.slice(0, 10); // Ensure only 10 songs
+                                if (songsToDisplay.length > 0) {
+                                    songsToDisplay.forEach((song, index) => {
+                                        const listItem = document.createElement('li');
+                                        listItem.className = 'flex items-center bg-gray-700 bg-opacity-60 rounded-xl p-4 shadow-md transition-all duration-200 hover:bg-gray-600';
+                                        listItem.innerHTML = `
+                                            <span class="text-xl font-bold text-purple-300 mr-3">${index + 1}.</span>
+                                            <div class="flex-grow">
+                                                <p class="text-lg sm:text-xl font-semibold text-white">${song.title}</p>
+                                                <p class="text-md sm:text-lg text-gray-300">${song.artist}</p>
+                                            </div>
+                                            ${musicPlatform ? `
+                                            <a
+                                                href="${getSongLink(song.title, song.artist, musicPlatform)}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="ml-4 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-full text-sm sm:text-md font-bold shadow-md transform transition-transform duration-200 hover:scale-105"
+                                            >
+                                                Listen on ${musicPlatform}
+                                            </a>
+                                            ` : ''}
+                                        `;
+                                        suggestedSongsList.appendChild(listItem);
+                                    });
+                                    suggestedSongsDisplay.classList.remove('hidden');
+                                } else {
+                                    displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
+                                }
+                            } else {
+                                displayError('Failed to parse song suggestions. The AI response was not in the expected JSON array format (e.g., missing title or artist).');
+                                console.error('Unexpected JSON structure:', parsedSongs);
+                            }
+                        } catch (jsonError) {
+                            displayError('Failed to parse song suggestions. The AI response was not valid JSON. Check console for raw response.');
+                            console.error('JSON parse error:', jsonError);
+                            console.error('Raw AI response causing error:', jsonText);
+                        }
+                    } else {
+                        displayError('The AI couldn\'t find songs for your current preferences. Try broadening your selections (e.g., choose \'Any\' for genre/mood or fewer characteristics) and try again!');
+                        console.error('AI response candidates/content missing:', result);
+                    }
+                } catch (err) {
+                    displayError('A network or API error occurred. Please check your internet connection and try again.');
+                    console.error('Overall fetch or API error:', err);
+                } finally {
+                    setLoading(false);
+                }
+            }
+            // Add event listener to the button
+            suggestButton.addEventListener('click', generateSuggestions);
+
+            // Initialize options on load
+            document.addEventListener('DOMContentLoaded', populateOptions);
+        })(); // End of IIFE
     </script>
 </body>
 </html>
-```
-I've checked the `index (7).html` file you provided, and it **now correctly contains the `NETLIFY_API_KEY_PLACEHOLDER`**.
-
-This is fantastic news! This means the `index.html` file in your Git repository is now properly configured to work with the `netlify.toml` file.
-
-Since the `index.html` is now correct, and your `netlify.toml` is also correct (targeting `NETLIFY_API_KEY_PLACEHOLDER`), the next deployment should finally inject your API key successfully.
-
----
-
-### Final Action: Trigger a New Deploy 🚀
-
-1.  **Commit and Push:** Make sure you've committed this latest change to your `index.html` (with `NETLIFY_API_KEY_PLACEHOLDER`) and pushed it to your GitHub repository.
-2.  **Verify New Deploy on Netlify:** Netlify should automatically trigger a new deploy. Go to your site's **"Deploys"** tab and click on the **latest deploy entry**.
-3.  **Check the Build Log:** Confirm that the "Building" step shows detailed output, especially the `rm -rf build`, `mkdir -p build`, and the `sed` command running.
-4.  **Inspect the Deployed `index.html` (Crucial Final Check):**
-    * Go to **"Show deployed files"** for that deploy.
-    * Navigate into the **`build` folder**.
-    * **Download** the `index.html` file.
-    * Open this downloaded `index.html` in a plain text editor.
-    * **Search for `const apiKey = `.** It **must** now contain your actual API key: `AIzaSyDHfaSVxLNSeQGUFtXNhHCsnwvi86wcreg`.
-
-If this final check confirms the API key is present, your app should be fully functional! This has been a very persistent issue, but we're very close to a resoluti
