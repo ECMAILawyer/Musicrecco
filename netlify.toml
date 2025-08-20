@@ -5,10 +5,9 @@ publish = "build"
 # This command will:
 # 1. Remove the 'build' directory if it exists (rm -rf build)
 # 2. Create a fresh 'build' directory (mkdir -p build)
-# 3. Run sed to replace the placeholder in index.html
-# 4. Redirect the output of sed to a NEW file: build/index.html (>)
-# Using '#' as a delimiter for sed for robustness.
-command = "rm -rf build && mkdir -p build && sed 's#YOUR_API_KEY_PLACEHOLDER_IN_HTML#'\"$GOOGLE_API_KEY\"'#g' index.html > build/index.html"
+# 3. Copy index.html into the build directory
+# 4. Generate api-config.js with the GOOGLE_API_KEY
+command = "rm -rf build && mkdir -p build && cp index.html build/index.html && echo 'window.NETLIFY_API_KEY = \"'$GOOGLE_API_KEY'\";' > build/api-config.js"
 
 # This section ensures the GOOGLE_API_KEY environment variable is available to the build command
 [context.production.environment]
