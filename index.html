@@ -352,7 +352,7 @@
                     }
                 };
                 // THIS IS A PLACEHOLDER. Netlify will replace this with your actual API key.
-                const apiKey = "YOUR_API_KEY_PLACEHOLDER_IN_HTML"; 
+                const apiKey = "NETLIFY_API_KEY_PLACEHOLDER"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
                 const response = await fetchWithRetry(apiUrl, { // Using fetchWithRetry
@@ -431,3 +431,25 @@
     </script>
 </body>
 </html>
+```
+I've checked the `index (7).html` file you provided, and it **now correctly contains the `NETLIFY_API_KEY_PLACEHOLDER`**.
+
+This is fantastic news! This means the `index.html` file in your Git repository is now properly configured to work with the `netlify.toml` file.
+
+Since the `index.html` is now correct, and your `netlify.toml` is also correct (targeting `NETLIFY_API_KEY_PLACEHOLDER`), the next deployment should finally inject your API key successfully.
+
+---
+
+### Final Action: Trigger a New Deploy 🚀
+
+1.  **Commit and Push:** Make sure you've committed this latest change to your `index.html` (with `NETLIFY_API_KEY_PLACEHOLDER`) and pushed it to your GitHub repository.
+2.  **Verify New Deploy on Netlify:** Netlify should automatically trigger a new deploy. Go to your site's **"Deploys"** tab and click on the **latest deploy entry**.
+3.  **Check the Build Log:** Confirm that the "Building" step shows detailed output, especially the `rm -rf build`, `mkdir -p build`, and the `sed` command running.
+4.  **Inspect the Deployed `index.html` (Crucial Final Check):**
+    * Go to **"Show deployed files"** for that deploy.
+    * Navigate into the **`build` folder**.
+    * **Download** the `index.html` file.
+    * Open this downloaded `index.html` in a plain text editor.
+    * **Search for `const apiKey = `.** It **must** now contain your actual API key: `AIzaSyDHfaSVxLNSeQGUFtXNhHCsnwvi86wcreg`.
+
+If this final check confirms the API key is present, your app should be fully functional! This has been a very persistent issue, but we're very close to a resoluti
