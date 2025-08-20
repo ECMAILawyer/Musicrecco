@@ -9,14 +9,8 @@ publish = "build"
 # 4. Create a template for api-config.js
 # 5. Use envsubst to replace the variable in the template and output to api-config.js
 # ABSOLUTELY CORRECTED: Removed all problematic backslashes from the TOML command string
-command = """
-rm -rf build && mkdir -p build && cp index.html build/index.html && 
-echo 'window.NETLIFY_API_KEY = "$GOOGLE_API_KEY";' > build/api-config-template.js && 
-envsubst '$GOOGLE_API_KEY' < build/api-config-template.js > build/api-config.js && 
-rm build/api-config-template.js
-"""
+command = """rm -rf build && mkdir -p build && cp index.html build/index.html && echo 'window.NETLIFY_API_KEY = "$GOOGLE_API_KEY";' > build/api-config-template.js && envsubst '$GOOGLE_API_KEY' < build/api-config-template.js > build/api-config.js && rm build/api-config-template.js"""
 
 # This section ensures the GOOGLE_API_KEY environment variable is available to the build command
 [context.production.environment]
 GOOGLE_API_KEY = "$GOOGLE_API_KEY"
-
