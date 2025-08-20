@@ -6,10 +6,10 @@ publish = "build"
 # 1. Remove the 'build' directory if it exists (rm -rf build)
 # 2. Create a fresh 'build' directory (mkdir -p build)
 # 3. Copy index.html into the build directory
-# 4. Generate api-config.js with the GOOGLE_API_KEY
-# This echo command uses a robust quoting strategy to ensure variable expansion
+# 4. Generate api-config.js with the GOOGLE_API_KEY using a separate script
 command = """
-rm -rf build && mkdir -p build && cp index.html build/index.html && echo 'window.NETLIFY_API_KEY = "'"$GOOGLE_API_KEY"'"' > build/api-config.js
+rm -rf build && mkdir -p build && cp index.html build/index.html && \
+echo "window.NETLIFY_API_KEY = '$GOOGLE_API_KEY';" > build/api-config.js
 """
 
 # This section ensures the GOOGLE_API_KEY environment variable is available to the build command
